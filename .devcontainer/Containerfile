@@ -8,7 +8,15 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 
 RUN dnf -y update && \
     yum -y reinstall shadow-utils && \
-    yum install -y fluxbox \
+    yum install -y git \
+                   # dependencies for Podman Desktop
+                   nss \
+                   atk \
+                   at-spi2-atk \
+                   cups-libs \
+                   gtk3 \
+                   # For remote Display
+                   fluxbox \
                    tigervnc-server \
                    xorg-x11-fonts-Type1 \
                    novnc \
@@ -40,6 +48,6 @@ ENV _CONTAINERS_USERNS_CONFIGURED=""
 # socket path for podman
 ENV XDG_RUNTIME_DIR=/run/user/1000
 
-ENTRYPOINT [ "/entrypoint.sh" ]
-USER user
-CMD ["tail", "-f", "/dev/null"]
+#ENTRYPOINT [ "/entrypoint.sh" ]
+#USER user
+#CMD ["tail", "-f", "/dev/null"]
