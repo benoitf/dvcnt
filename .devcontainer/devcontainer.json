@@ -17,7 +17,9 @@
         "--device",
         "/dev/fuse",
         "--security-opt",
-        "label=disable"
+        "label=disable",
+        "--security-opt",
+        "apparmor=unconfined"
    ],
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
     "workspaceFolder": "/workspace"
