@@ -3,6 +3,8 @@
     "build": {
         "dockerfile": "Containerfile"
     },
+    // do not use root
+    "containerUser": "user",
     // Add the IDs of extensions you want installed when the container is created.
     "extensions": [
         "svelte.svelte-vscode",
