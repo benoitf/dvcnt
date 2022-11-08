@@ -1,0 +1,26 @@
+{
+    "name": "Podman Desktop",
+    "build": {
+        "dockerfile": "Containerfile",
+        "context": "..",
+        "args": {}
+    },
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "svelte.svelte-vscode",
+        "bradlc.vscode-tailwindcss"
+    ],
+    "features": {
+    },
+    "runArgs": [
+        "--cap-add=sys_admin",
+        "--security-opt",
+        "seccomp=unconfined",
+        "--device",
+        "/dev/fuse",
+        "--security-opt",
+        "label=disable"
+   ],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+    "workspaceFolder": "/workspace"
+}

@@ -1,0 +1,45 @@
+FROM quay.io/fedora/fedora:37
+
+# install Node.js
+ENV NODE_VERSION 16.18.1
+RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz" && \
+    tar -xzf "node-v$NODE_VERSION-linux-x64.tar.gz" -C /usr/local --strip-components=1 && \
+    rm "node-v$NODE_VERSION-linux-x64.tar.gz"
+
+RUN dnf -y update && \
+    yum -y reinstall shadow-utils && \
+    yum install -y fluxbox \
+                   tigervnc-server \
+                   xorg-x11-fonts-Type1 \
+                   novnc \
+                   supervisor \
+                   podman \
+                   fuse-overlayfs --exclude container-selinux \
+                   xterm && \
+    rm -rf /var/cache /var/log/dnf* /var/log/yum.*
+COPY entrypoint.sh /entrypoint.sh
+COPY supervisord.conf /etc/supervisord.conf
+COPY fluxbox /usr/share/fluxbox/init
+RUN useradd -u 1000 user && echo user:10000:5000 > /etc/subuid && echo user:10000:5000 > /etc/subgid
+
+
+# expose port for VNC
+EXPOSE 8080
+
+# initialize conf files
+ADD https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/containers.conf /etc/containers/containers.conf
+ADD https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/podman-containers.conf /home/user/.config/containers/containers.conf
+
+# set permissions
+RUN chown user:user -R /home/user && chmod 644 /etc/containers/containers.conf && \
+    mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers /var/lib/shared/vfs-images /var/lib/shared/vfs-layers; touch /var/lib/shared/overlay-images/images.lock; touch /var/lib/shared/overlay-layers/layers.lock; touch /var/lib/shared/vfs-images/images.lock; touch /var/lib/shared/vfs-layers/layers.lock && \
+    mkdir /run/user/1000 && chown user:user /run/user/1000
+
+ENV _CONTAINERS_USERNS_CONFIGURED=""
+
+# socket path for podman
+ENV XDG_RUNTIME_DIR=/run/user/1000
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+USER user
+CMD ["tail", "-f", "/dev/null"]
